@@ -666,11 +666,15 @@ async function openProfile(id) {
   const lks = fam.likes_count || 0;
   const hours = fam.working_hours || [];
 
+  const _IG   = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
+  const _SNAP = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12.17 2C9.11 2 7.25 4.06 7.25 6.5v1.06l-1.37.72c-.27.14-.28.55-.03.71l1.4.9v.75c-.43.32-1.07.64-1.75.85-.31.09-.44.43-.26.67l.61.82-.17.07c-.3.12-.44.45-.3.74l.34.72c.11.24.36.38.62.37.38-.02.75-.08 1.16-.18.63.84 1.56 1.27 2.66 1.27s2.03-.43 2.66-1.27c.41.1.78.16 1.16.18.26.01.51-.13.62-.37l.34-.72c.13-.3-.01-.62-.3-.74l-.17-.07.61-.82c.18-.24.05-.58-.26-.67-.68-.2-1.32-.53-1.75-.85v-.75l1.4-.9c.25-.16.24-.57-.03-.71l-1.37-.72V6.5C17.08 3.96 15.08 2 12.17 2z"/></svg>`;
+  const _TT   = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.19 8.19 0 0 0 4.78 1.52V6.74a4.85 4.85 0 0 1-1.01-.05z"/></svg>`;
+  const _WEB  = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
   const social = [
-    fam.instagram ? `<a class="scbtn" href="https://instagram.com/${fam.instagram.replace('@','')}" target="_blank">📸 ${fam.instagram}</a>` : '',
-    fam.snap      ? `<a class="scbtn" href="https://snapchat.com/add/${fam.snap.replace('@','')}" target="_blank">👻 ${fam.snap}</a>` : '',
-    fam.tiktok    ? `<a class="scbtn" href="https://tiktok.com/${fam.tiktok}" target="_blank">🎵 ${fam.tiktok}</a>` : '',
-    fam.website   ? `<a class="scbtn" href="${fam.website}" target="_blank">🌐 الموقع</a>` : '',
+    fam.instagram ? `<a class="scbtn scbtn-ig" href="https://instagram.com/${fam.instagram.replace('@','')}" target="_blank" rel="noopener">${_IG} ${fam.instagram}</a>` : '',
+    fam.snap      ? `<a class="scbtn scbtn-snap" href="https://snapchat.com/add/${fam.snap.replace('@','')}" target="_blank" rel="noopener">${_SNAP} ${fam.snap}</a>` : '',
+    fam.tiktok    ? `<a class="scbtn scbtn-tt" href="https://tiktok.com/${fam.tiktok}" target="_blank" rel="noopener">${_TT} ${fam.tiktok}</a>` : '',
+    fam.website   ? `<a class="scbtn scbtn-web" href="${fam.website}" target="_blank" rel="noopener">${_WEB} الموقع</a>` : '',
   ].filter(Boolean).join('');
 
   const menuHTML = prods.map(it => `
