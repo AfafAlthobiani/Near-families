@@ -102,6 +102,7 @@ window.addEventListener('load', async () => {
       setupRealtime();
     }
     updateHeroCount();
+    await tryOpenProfileFromUrl();
     document.getElementById('btnExplore').style.display = 'flex';
   } catch(e) { console.warn('boot error', e); }
   showLoading(false);
@@ -486,6 +487,59 @@ function goPage(id) {
   window.scrollTo(0,0);
 }
 
+function getProfileLink(fam) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('family', fam.slug || fam.id);
+  return url.toString();
+}
+
+function syncProfileUrl(fam) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('family', fam.slug || fam.id);
+  window.history.replaceState({}, '', url);
+}
+
+function clearProfileUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('family');
+  window.history.replaceState({}, '', url);
+}
+
+async function copyProfileLink(id) {
+  const fam = families.find(f => String(f.id) === String(id));
+  if (!fam) { showToast('⚠️ تعذر إنشاء رابط البروفايل'); return; }
+
+  const profileLink = getProfileLink(fam);
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(profileLink);
+    } else {
+      const input = document.createElement('textarea');
+      input.value = profileLink;
+      input.setAttribute('readonly', 'readonly');
+      input.style.position = 'fixed';
+      input.style.opacity = '0';
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      input.remove();
+    }
+    showToast('🔗 تم نسخ رابط البروفايل');
+  } catch (_e) {
+    showToast('⚠️ تعذر نسخ الرابط، انسخه يدوياً من شريط العنوان');
+  }
+}
+
+async function tryOpenProfileFromUrl() {
+  const profileKey = new URLSearchParams(window.location.search).get('family');
+  if (!profileKey) return;
+
+  const fam = families.find(f => String(f.id) === String(profileKey) || String(f.slug || '') === String(profileKey));
+  if (!fam) return;
+
+  await openProfile(fam.id);
+}
+
 function openSettings() {
   if (!currentUser) { openAuth('login'); return; }
   hydrateSettings();
@@ -593,6 +647,7 @@ async function openProfile(id) {
   showLoading(true);
   const fam = families.find(f => String(f.id) === String(id));
   if (!fam) { showLoading(false); return; }
+  syncProfileUrl(fam);
 
   const prods = await loadProducts(id);
   const offers = await loadOffers(id);
@@ -668,6 +723,8 @@ async function openProfile(id) {
         <button class="abtn" onclick="window.open('https://maps.google.com/?q=${fam.lat},${fam.lng}','_blank')"><span class="ai">📍</span>الموقع</button>
       </div>
 
+      <button class="btn-g profile-share-btn" onclick="copyProfileLink('${id}')">🔗 نسخ رابط البروفايل</button>
+
       ${social ? `<div class="sect">حساباتنا</div><div class="scrow">${social}</div>` : ''}
 
       ${hours.length ? `<div class="sect">ساعات العمل</div><div class="hrgrid">${hoursHTML}</div>` : ''}
@@ -697,7 +754,7 @@ async function openProfile(id) {
   }, 120);
 }
 
-function closeProfile() { document.getElementById('ovProfile').classList.remove('open'); document.body.style.overflow = ''; }
+function closeProfile() { document.getElementById('ovProfile').classList.remove('open'); document.body.style.overflow = ''; clearProfileUrl(); }
 
 /* ══════════════════════════════════════════════════
    LIKE
@@ -1571,7 +1628,7 @@ Object.assign(window, {
   filterBy, onSearchInput, locateUser,
   openDash, closeDash, buildDash,
   openSettings, saveSettings, doLogin, doRegister, doLogout,
-  openProfile, closeProfile, toggleLike,
+  openProfile, closeProfile, copyProfileLink, toggleLike,
   openOrder, closeOrder, changeCart, togglePreorderDate, submitOrder,
   openReview, closeReview, setStars, submitReview,
   updateOrderStatus, toggleAddProdForm, previewProductImg,

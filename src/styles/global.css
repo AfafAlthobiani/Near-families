@@ -123,6 +123,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);overf
 .abtn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 5px;border-radius:var(--rs);border:1.5px solid var(--bd);background:#fff;cursor:pointer;transition:.2s;font-family:'Tajawal',sans-serif;font-size:.73rem;font-weight:600;color:var(--tx);}
 .abtn:hover{border-color:var(--p);color:var(--p);background:rgba(232,83,26,.04);}
 .abtn .ai{font-size:19px;}
+.profile-share-btn{width:100%;justify-content:center;padding:11px 14px;margin-bottom:18px;font-weight:700;}
 .lksec{display:flex;align-items:center;gap:11px;background:var(--bg);border-radius:var(--rs);padding:11px 14px;margin-bottom:18px;}
 .btnlk{display:flex;align-items:center;gap:6px;background:#fff;border:2px solid var(--bd);border-radius:50px;padding:6px 14px;font-family:'Tajawal',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;transition:.2s;color:var(--tx);}
 .btnlk.lkd{background:rgba(232,83,26,.08);border-color:var(--p);color:var(--p);}
