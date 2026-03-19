@@ -305,6 +305,7 @@ function doLogout() {
   if (USE_SUPABASE) { sb.auth.signOut(); }
   currentUser = null; myFamily = null;
   closeDash(); updateAuthArea();
+  goPage('land');
   showToast('👋 تم تسجيل الخروج');
 }
 
@@ -650,7 +651,7 @@ async function openOrder(familyId) {
 }
 
 function changeCart(productId, price, delta) {
-  const curr = cartItems[productId] || 0;
+  const curr = cartItems[productId]?.qty || 0;  // BUG FIX: read .qty not the whole object
   const next = Math.max(0, curr + delta);
   if (next === 0) delete cartItems[productId];
   else cartItems[productId] = {qty: next, price};
@@ -1135,10 +1136,12 @@ function isValidPhone(phone) {
 }
 
 function compressImage(file, maxDim, quality) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    reader.onerror = () => reject(new Error('FileReader error'));
     reader.onload = e => {
       const img = new Image();
+      img.onerror = () => reject(new Error('Image load error'));
       img.onload = () => {
         let w = img.naturalWidth, h = img.naturalHeight;
         if (w > maxDim || h > maxDim) {
@@ -1341,7 +1344,7 @@ async function saveSettings() {
   const pass = document.getElementById('sPass').value;
 
   if (!name || !biz) { showToast('⚠️ الاسم واسم المشروع مطلوبان'); return; }
-  if (!isValidPhone(phone)) { showToast('⚠️ رقم الجوال غير صحيح'); return; }
+  if (phone && !isValidPhone(phone)) { showToast('⚠️ رقم الجوال غير صحيح'); return; }
   if (pass && pass.length < 6) { showToast('⚠️ كلمة المرور الجديدة قصيرة'); return; }
 
   setBtnLoading('saveSettingsBtn', true);
@@ -1437,3 +1440,20 @@ function setBtnLoading(id, loading) {
   if (loading) btn.innerHTML = `<span class="spin"></span>`;
   else btn.innerHTML = btn.dataset.label;
 }
+
+/* ══════════════════════════════════════════════════
+   EXPOSE GLOBALS — required for HTML inline onclick handlers
+   (app.js runs as ES module; functions are not on window by default)
+══════════════════════════════════════════════════ */
+Object.assign(window, {
+  goPage, openAuth, closeAuth, switchTab, pickCat,
+  openAdd, closeAdd, previewAddImg, submitAdd,
+  filterBy, onSearchInput, locateUser,
+  openDash, closeDash, buildDash,
+  openSettings, saveSettings, doLogin, doRegister, doLogout,
+  openProfile, closeProfile, toggleLike,
+  openOrder, closeOrder, changeCart, togglePreorderDate, submitOrder,
+  openReview, closeReview, setStars, submitReview,
+  updateOrderStatus, toggleAddProdForm, previewProductImg,
+  saveProduct, saveOffer, deleteOffer, deleteProduct, openEditProduct
+});
