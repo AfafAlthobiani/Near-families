@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="96" y1="64" x2="416" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF6B35"/>
+      <stop offset="1" stop-color="#E8531A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="160" y1="168" x2="352" y2="344" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF4E8"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="40" y="40" width="432" height="432" rx="120" fill="url(#bg)"/>
+  <circle cx="164" cy="156" r="28" fill="#FFD7C2" fill-opacity="0.55"/>
+  <circle cx="356" cy="132" r="18" fill="#FFD7C2" fill-opacity="0.4"/>
+  <circle cx="382" cy="350" r="22" fill="#FFD7C2" fill-opacity="0.45"/>
+  <path d="M154 229.5C154 222.596 159.596 217 166.5 217H202.185C208.758 217 214.108 222.065 214.567 228.622L216.281 253.122C216.74 259.679 222.09 264.744 228.663 264.744H282.653C289.442 264.744 294.958 259.359 295.121 252.573L295.751 226.371C295.914 219.585 301.43 214.2 308.219 214.2H345.5C352.404 214.2 358 219.796 358 226.7V314.5C358 321.404 352.404 327 345.5 327H166.5C159.596 327 154 321.404 154 314.5V229.5Z" fill="url(#accent)"/>
+  <path d="M128 248.725C128 244.402 130.216 240.379 133.871 238.063L247.121 166.288C252.477 162.894 259.324 162.916 264.657 166.343L376.327 238.118C379.919 240.426 382.1 244.399 382.1 248.668V257.5C382.1 261.09 379.19 264 375.6 264H136.4C132.81 264 129.9 261.09 129.9 257.5V248.725H128Z" fill="#1A1A2E" fill-opacity="0.12"/>
+  <path d="M201 315C201 285.729 224.729 262 254 262H258C287.271 262 311 285.729 311 315V327H201V315Z" fill="#3D6B4F" fill-opacity="0.18"/>
+  <circle cx="232" cy="230" r="18" fill="#E8531A"/>
+  <circle cx="280" cy="230" r="18" fill="#E8531A" fill-opacity="0.82"/>
+  <rect x="235" y="292" width="42" height="35" rx="14" fill="#E8531A"/>
+  <path d="M150 246.509C150 243.2 151.64 240.106 154.379 238.241L247.379 174.909C252.517 171.411 259.31 171.421 264.438 174.934L357.098 238.411C359.809 240.269 361.431 243.346 361.431 246.632V320.5C361.431 326.299 356.73 331 350.931 331H160.5C154.701 331 150 326.299 150 320.5V246.509Z" stroke="#FFF8F1" stroke-width="20" stroke-linejoin="round"/>
+  <path d="M202 328V281C202 251.729 225.729 228 255 228C284.271 228 308 251.729 308 281V328" stroke="#FFF8F1" stroke-width="20" stroke-linecap="round"/>
+  <path d="M237 328V297C237 287.611 244.611 280 254 280H256C265.389 280 273 287.611 273 297V328" stroke="#FFF8F1" stroke-width="20" stroke-linecap="round"/>
+ </svg>
