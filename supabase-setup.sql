@@ -207,6 +207,8 @@ CREATE TRIGGER trg_refresh_rating AFTER INSERT OR UPDATE ON reviews
 -- ══════════════════════════════════════════════════════════
 INSERT INTO storage.buckets (id, name, public) VALUES ('family-images', 'family-images', true)
   ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true)
+  ON CONFLICT (id) DO NOTHING;
 
 CREATE POLICY "family_images_public_read" ON storage.objects
   FOR SELECT USING (bucket_id = 'family-images');
@@ -214,6 +216,13 @@ CREATE POLICY "family_images_auth_upload" ON storage.objects
   FOR INSERT WITH CHECK (bucket_id = 'family-images' AND auth.uid() IS NOT NULL);
 CREATE POLICY "family_images_owner_delete" ON storage.objects
   FOR DELETE USING (bucket_id = 'family-images' AND owner = auth.uid());
+
+CREATE POLICY "product_images_public_read" ON storage.objects
+  FOR SELECT USING (bucket_id = 'product-images');
+CREATE POLICY "product_images_auth_upload" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'product-images' AND auth.uid() IS NOT NULL);
+CREATE POLICY "product_images_owner_delete" ON storage.objects
+  FOR DELETE USING (bucket_id = 'product-images' AND owner = auth.uid());
 
 -- ══════════════════════════════════════════════════════════
 -- 12. Seed Data — بيانات تجريبية (اختياري)
