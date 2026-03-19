@@ -58,6 +58,13 @@ const SEED_OFFERS = {
   '1': [{id:'of-1', title:'خصم نهاية الأسبوع', desc:'على جميع الحلويات', discount_type:'percent', discount_val:15, code:'SWEET15', expires_at:null, is_active:true}],
   '4': [{id:'of-2', title:'قهوة اليوم', desc:'خصم على اللاتيه', discount_type:'fixed', discount_val:5, code:'LATTE5', expires_at:null, is_active:true}]
 };
+const SEED_NOTIFICATIONS = [
+  {id:'n1', type:'order',  title:'📦 طلب جديد وصل!',          body:'طلب بإجمالي 90 ر.س ينتظر موافقتك',          read:false, created_at: new Date(Date.now()-3*60*1000).toISOString()},
+  {id:'n2', type:'like',   title:'👍 إعجاب جديد على مشروعك', body:'أعجب شخص بمشروعك وأضافه للمفضلة',         read:false, created_at: new Date(Date.now()-18*60*1000).toISOString()},
+  {id:'n3', type:'review', title:'⭐ تقييم 5 نجوم جديد',    body:'حصلت على تقييم ممتاز من أحد عملائك',          read:false, created_at: new Date(Date.now()-45*60*1000).toISOString()},
+  {id:'n4', type:'order',  title:'✅ تم تأكيد الطلب',        body:'الطلب ord-2 تم تأكيده وجاري التحضير',           read:true,  created_at: new Date(Date.now()-2*60*60*1000).toISOString()},
+  {id:'n5', type:'system', title:'🎉 مرحباً في أسر قريبة!',  body:'حسابك جاهز — ابدأ بإضافة منتجاتك لتظهر على الخريطة',  read:true,  created_at: new Date(Date.now()-24*60*60*1000).toISOString()},
+];
 
 /* ══════════════════════════════════════════════════
    STATE
@@ -81,6 +88,7 @@ let catSel = {};
 let addImageFile = null;
 let prodImageFile = null;
 let searchDebounceTimer = null;
+let notifications = [];
 
 /* ══════════════════════════════════════════════════
    BOOT
@@ -178,6 +186,109 @@ async function loadOffers(familyId) {
 }
 
 /* ══════════════════════════════════════════════════
+   NOTIFICATIONS
+══════════════════════════════════════════════════ */
+async function loadNotifications() {
+  if (!currentUser) { notifications = []; return; }
+  if (USE_SUPABASE) {
+    try {
+      const {data, error} = await sb.from('notifications')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', {ascending:false})
+        .limit(30);
+      if (!error && data) { notifications = data; updateNotifBadge(); return; }
+    } catch (_) {}
+  }
+  notifications = [...SEED_NOTIFICATIONS];
+  updateNotifBadge();
+}
+
+function getUnreadCount() { return notifications.filter(n => !n.read).length; }
+
+function addNotification(type, title, body) {
+  notifications.unshift({
+    id: 'local-' + Date.now(),
+    type, title, body,
+    read: false,
+    created_at: new Date().toISOString()
+  });
+  updateNotifBadge();
+  const panel = document.getElementById('notifPanel');
+  if (panel?.classList.contains('open')) renderNotifPanel();
+}
+
+function timeAgo(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60)    return 'الآن';
+  if (diff < 3600)  return `منذ ${Math.floor(diff/60)} دقيقة`;
+  if (diff < 86400) return `منذ ${Math.floor(diff/3600)} ساعة`;
+  return `منذ ${Math.floor(diff/86400)} يوم`;
+}
+
+const NOTIF_ICONS = { order:'📦', like:'👍', review:'⭐', system:'📢' };
+
+function renderNotifPanel() {
+  const list = document.getElementById('notifList');
+  if (!list) return;
+  if (!notifications.length) {
+    list.innerHTML = '<div class="notif-empty"><div class="notif-empty-ic">🔔</div><p>لا توجد إشعارات بعد</p></div>';
+    return;
+  }
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-item${n.read ? '' : ' unread'}" onclick="markRead('${n.id}')">
+      <div class="notif-ic ${n.type}">${NOTIF_ICONS[n.type] || '📢'}</div>
+      <div class="notif-bd">
+        <div class="notif-ttl">${n.title}</div>
+        <div class="notif-msg">${n.body}</div>
+        <div class="notif-ts">${timeAgo(n.created_at)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  const count = getUnreadCount();
+  badge.textContent = count > 9 ? '9+' : String(count);
+  badge.style.display = count > 0 ? 'flex' : 'none';
+}
+
+function openNotifications() {
+  if (!currentUser) { openAuth('login'); return; }
+  renderNotifPanel();
+  document.getElementById('notifPanel')?.classList.add('open');
+  const bd = document.getElementById('notifBackdrop');
+  if (bd) bd.style.display = 'block';
+}
+
+function closeNotifications() {
+  document.getElementById('notifPanel')?.classList.remove('open');
+  const bd = document.getElementById('notifBackdrop');
+  if (bd) bd.style.display = 'none';
+}
+
+function markRead(notifId) {
+  const n = notifications.find(x => x.id === String(notifId));
+  if (!n || n.read) return;
+  n.read = true;
+  if (USE_SUPABASE && currentUser) {
+    sb.from('notifications').update({read:true}).eq('id', notifId).then(()=>{});
+  }
+  updateNotifBadge();
+  renderNotifPanel();
+}
+
+function markAllRead() {
+  notifications.forEach(n => n.read = true);
+  if (USE_SUPABASE && currentUser) {
+    sb.from('notifications').update({read:true}).eq('user_id', currentUser.id).then(()=>{});
+  }
+  updateNotifBadge();
+  renderNotifPanel();
+}
+
+/* ══════════════════════════════════════════════════
    SESSION & AUTH
 ══════════════════════════════════════════════════ */
 async function checkSession() {
@@ -185,12 +296,13 @@ async function checkSession() {
   if (session) {
     currentUser = session.user;
     await loadMyFamily();
+    await loadNotifications();
     updateAuthArea();
   }
   sb.auth.onAuthStateChange(async (_ev, s) => {
     currentUser = s?.user || null;
-    if (currentUser) { await loadMyFamily(); }
-    else { myFamily = null; }
+    if (currentUser) { await loadMyFamily(); await loadNotifications(); }
+    else { myFamily = null; notifications = []; }
     updateAuthArea();
   });
 }
@@ -216,6 +328,7 @@ async function doLogin() {
     if (demos[email] === pass) {
       currentUser = {id:'demo-1', email, user_metadata:{name: email.split('@')[0]}};
       myFamily = families.find(f => f.id === '1') || null;
+      await loadNotifications();
       closeAuth(); updateAuthArea();
       showToast('👋 أهلاً بك!');
     } else { showErr(err, 'البريد أو كلمة المرور غير صحيحة'); }
@@ -263,6 +376,7 @@ async function doRegister() {
     filteredFamilies = [...families];
     currentUser = {id:'demo-new', email, user_metadata:{name}};
     myFamily = newFam;
+    await loadNotifications();
     document.getElementById('cntAll').textContent = families.length;
     refreshMapViews();
     closeAuth(); updateAuthArea();
@@ -313,9 +427,11 @@ function updateAuthArea() {
   const area = document.getElementById('authArea');
   if (currentUser) {
     const initial = (currentUser.user_metadata?.name || currentUser.email || 'م').charAt(0).toUpperCase();
+    const uc = getUnreadCount();
     area.innerHTML = `<div style="display:flex;align-items:center;gap:7px;">
       <button class="btn-g" onclick="openDash()" style="border-color:#6366F1;color:#6366F1">📊 لوحتي</button>
       <button class="btn-g" onclick="openSettings()">⚙️ إعدادات</button>
+      <button class="notif-btn" onclick="openNotifications()" title="الإشعارات">🔔<span class="notif-badge" id="notifBadge" style="display:${uc>0?'flex':'none'}">${uc>9?'9+':uc}</span></button>
       <div class="uav" onclick="doLogout()" title="تسجيل خروج">${initial}<div class="odot"></div></div>
     </div>`;
   } else {
@@ -340,12 +456,16 @@ function setupRealtime() {
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'orders'}, payload => {
       if (myFamily && payload.new.family_id === myFamily.id) {
         showToast('📦 طلب جديد وصل! تحقق من لوحة التحكم');
+        addNotification('order', '📦 طلب جديد وصل!', `إجمالي الطلب ${payload.new.total || 0} ر.س — افتح لوحة التحكم للتأكيد`);
         orders.unshift(payload.new);
       }
     })
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'likes'}, payload => {
       const fam = families.find(f => f.id === payload.new.family_id);
       if (fam) fam.likes_count = (fam.likes_count||0) + 1;
+      if (myFamily && String(payload.new.family_id) === String(myFamily.id)) {
+        addNotification('like', '👍 إعجاب جديد على مشروعك', `أعجب شخص بمشروع ${myFamily.name}`);
+      }
       refreshMapViews(true);
     })
     .subscribe();
@@ -1455,5 +1575,6 @@ Object.assign(window, {
   openOrder, closeOrder, changeCart, togglePreorderDate, submitOrder,
   openReview, closeReview, setStars, submitReview,
   updateOrderStatus, toggleAddProdForm, previewProductImg,
-  saveProduct, saveOffer, deleteOffer, deleteProduct, openEditProduct
+  saveProduct, saveOffer, deleteOffer, deleteProduct, openEditProduct,
+  openNotifications, closeNotifications, markRead, markAllRead
 });

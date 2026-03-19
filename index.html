@@ -566,6 +566,18 @@
   </div>
 </div>
 
+<!-- NOTIFICATIONS PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-inner">
+    <div class="notif-header">
+      <span class="notif-title">🔔 الإشعارات</span>
+      <button class="notif-mark-all" onclick="markAllRead()">تحديد الكل كمقروء</button>
+    </div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+</div>
+<div id="notifBackdrop" style="display:none;position:fixed;inset:0;z-index:1899;" onclick="closeNotifications()"></div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
